@@ -22,28 +22,33 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["keyPattern"] + " (" + $parameter["eventTypes"].join(", ") + ")"}}',
-		description: 'ChatBot Enhanced with real-time trigger capabilities for monitoring Redis key changes and session events',
+		description:
+			'ChatBot Enhanced with real-time trigger capabilities for monitoring Redis key changes and session events',
 		codex: {
 			categories: ['Trigger'],
 			subcategories: {
-				'Trigger': ['Database', 'Real-time', 'Event-driven']
+				Trigger: ['Database', 'Real-time', 'Event-driven'],
 			},
 			resources: {
 				primaryDocumentation: [
 					{
-						url: 'https://docs.n8n.io/integrations/trigger-nodes/'
-					}
+						url: 'https://docs.n8n.io/integrations/trigger-nodes/',
+					},
 				],
 				credentialDocumentation: [
 					{
-						url: 'https://redis.io/docs/manual/keyspace-notifications/'
-					}
-				]
+						url: 'https://redis.io/docs/manual/keyspace-notifications/',
+					},
+				],
 			},
 			alias: [
-				'redis trigger', 'keyspace notification', 'real-time redis', 
-				'redis monitor', 'event trigger', 'database trigger'
-			]
+				'redis trigger',
+				'keyspace notification',
+				'real-time redis',
+				'redis monitor',
+				'event trigger',
+				'database trigger',
+			],
 		},
 		defaults: {
 			name: 'Chatbot Enhanced - Trigger',
@@ -96,7 +101,7 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 				},
 			},
 			{
-				displayName: 'Pattern Examples & Help',
+				displayName: 'Warning: Leave this blank will track all keys!',
 				name: 'patternHelp',
 				type: 'notice',
 				default: '',
@@ -109,10 +114,11 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 					theme: 'info',
 				},
 				options: [],
-				description: '<strong>Pattern Syntax:</strong>• <code>*</code> - Matches any characters (but not colon :)• <code>?</code> - Matches single character (but not colon :)• <code>**</code> - Matches any characters including colons<strong>Examples:</strong>• <code>chatbot:*</code> → chatbot:user123, chatbot:session456• <code>user:???:data</code> → user:abc:data, user:123:data• <code>*:messages</code> → chat:messages, room:messages• <code>cache:**</code> → cache:user:profile:settings',
+				description:
+					'<strong>Pattern Syntax:</strong>• <code>*</code> - Matches any characters (but not colon :)• <code>?</code> - Matches single character (but not colon :)• <code>**</code> - Matches any characters including colons<strong>Examples:</strong>• <code>chatbot:*</code> → chatbot:user123, chatbot:session456• <code>user:???:data</code> → user:abc:data, user:123:data• <code>*:messages</code> → chat:messages, room:messages• <code>cache:**</code> → cache:user:profile:settings',
 			},
 			{
-				displayName: 'Performance Warning',
+				displayName: 'Warning: This will trigger all keys on your Redis Instance',
 				name: 'performanceWarning',
 				type: 'notice',
 				default: '',
@@ -125,7 +131,8 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 					theme: 'warning',
 				},
 				options: [],
-				description: '&lt;strong&gt;⚠️ Performance Warning:&lt;/strong&gt;Tracking all keys will monitor EVERY Redis operation and can cause:• High CPU usage on Redis server• Network bandwidth consumption• Potential n8n workflow overload• Production performance issues&lt;strong&gt;Recommended:&lt;/strong&gt; Use "Choose Key" with specific patterns for production',
+				description:
+					'&lt;strong&gt;⚠️ Performance Warning:&lt;/strong&gt;Tracking all keys will monitor EVERY Redis operation and can cause:• High CPU usage on Redis server• Network bandwidth consumption• Potential n8n workflow overload• Production performance issues&lt;strong&gt;Recommended:&lt;/strong&gt; Use "Choose Key" with specific patterns for production',
 			},
 
 			// Event Type Selection
@@ -242,13 +249,13 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 			// Track all mode enabled - monitoring all Redis keys
 		} else {
 			keyPattern = this.getNodeParameter('keyPattern') as string;
-			
+
 			// Validate pattern for chooseKey mode
 			const patternValidation = PatternMatcher.validatePattern(keyPattern);
 			if (!patternValidation.isValid) {
 				throw new NodeOperationError(
 					this.getNode(),
-					`Invalid key pattern: ${patternValidation.error}`
+					`Invalid key pattern: ${patternValidation.error}`,
 				);
 			}
 		}
@@ -258,21 +265,24 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 		if (!eventTypeValidation.isValid) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`Invalid event types: ${eventTypeValidation.error}`
+				`Invalid event types: ${eventTypeValidation.error}`,
 			);
 		}
 
 		// Get Redis credentials
-		const credentials = await this.getCredentials('redis') as RedisCredential;
-		
+		const credentials = (await this.getCredentials('redis')) as RedisCredential;
+
 		// Validate credentials are present
 		if (!credentials || !credentials.host || !credentials.port) {
-			throw new NodeOperationError(this.getNode(), 'Redis credentials are incomplete. Please check host, port, and other connection settings.');
+			throw new NodeOperationError(
+				this.getNode(),
+				'Redis credentials are incomplete. Please check host, port, and other connection settings.',
+			);
 		}
-		
+
 		// Initialize Redis Trigger Manager
 		let redisTriggerManager: RedisTriggerManager | null = null;
-		
+
 		try {
 			redisTriggerManager = new RedisTriggerManager(credentials, {
 				connectionTimeout: advancedOptions.connectionTimeout || 5000,
@@ -288,14 +298,15 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 				if (!testClient.isOpen) {
 					await testClient.connect();
 				}
-				
+
 				// Test connection with a simple ping
 				await testClient.ping();
 			} catch (connectionError) {
-				const errorMessage = connectionError instanceof Error ? connectionError.message : 'Unknown connection error';
+				const errorMessage =
+					connectionError instanceof Error ? connectionError.message : 'Unknown connection error';
 				throw new NodeOperationError(
-					this.getNode(), 
-					`Failed to connect to Redis server at ${credentials.host}:${credentials.port}. Please verify your Redis credentials and server availability. Error: ${errorMessage}`
+					this.getNode(),
+					`Failed to connect to Redis server at ${credentials.host}:${credentials.port}. Please verify your Redis credentials and server availability. Error: ${errorMessage}`,
 				);
 			}
 
@@ -316,14 +327,14 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 									triggerId: String(this.getNode().id),
 									workflowId: String(this.getWorkflow().id),
 									nodeVersion: 1,
-								}
+								},
 							}),
 						},
 					};
 
 					// Emit trigger event to n8n workflow using the standard format
 					this.emit([this.helpers.returnJsonArray([outputData])]);
-					
+
 					// Trigger event emitted successfully
 				} catch (emissionError) {
 					// Trigger emission failed - logged internally
@@ -343,7 +354,6 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 			return {
 				closeFunction,
 			};
-
 		} catch (error) {
 			// Clean up on error
 			if (redisTriggerManager) {
@@ -357,7 +367,7 @@ export class ChatBotEnhancedRedisTrigger implements INodeType {
 
 			throw new NodeOperationError(
 				this.getNode(),
-				`Failed to initialize Redis trigger: ${error instanceof Error ? error.message : 'Unknown error'}`
+				`Failed to initialize Redis trigger: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			);
 		}
 	}

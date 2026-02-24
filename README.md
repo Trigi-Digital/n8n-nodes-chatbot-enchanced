@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/@trigidigital%2Fn8n-nodes-chatbot-enchanced.svg)](https://www.npmjs.com/package/@trigidigital/n8n-nodes-chatbot-enchanced)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-🚀 **Production-ready v1.0.0** chatbot enhancement node for n8n workflows with Redis/Valkey integration and **real-time trigger capabilities**.
+🚀 **Production-ready** chatbot enhancement node for n8n workflows with Redis/Valkey/Upstash integration and **real-time trigger capabilities**.
 
 ⚡ **High-performance architecture** supporting **100-200+ operations per second** with enterprise-grade error handling, streamlined outputs, and lean codebase.
 
