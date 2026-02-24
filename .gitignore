@@ -36,7 +36,7 @@ Thumbs.db
 nodes/ChatBotEnhanced/__tests__/
 tests/
 docs/
-.bmad-core/
+_bmad*/
 .claude/
 .web-bundles
 coverage/
