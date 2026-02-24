@@ -1,6 +1,6 @@
 {
   "name": "@trigidigital/n8n-nodes-chatbot-enchanced",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Advanced chatbot functionality with smart rate limiting, message buffering, session management, and Redis integration for scalable conversation automation",
   "keywords": [
     "n8n-community-node-package",
