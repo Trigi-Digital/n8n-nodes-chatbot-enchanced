@@ -36,7 +36,7 @@ Thumbs.db
 nodes/ChatBotEnhanced/__tests__/
 tests/
 docs/
-.bmad-core/
+_bmad*/
 .claude/
 .gemini/
 .web-bundles
@@ -56,6 +56,3 @@ CODE_OF_CONDUCT.md
 # Package locks (keep package-lock.json for consistency)
 yarn.lock
 pnpm-lock.yaml
-# BMAD (local only)
-.bmad-core/
-.bmad-*/

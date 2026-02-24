@@ -931,23 +931,25 @@ export class ChatBotEnhanced implements INodeType {
 					}
 
 					// BLOCKING WAIT for timer (TimedBuffer pattern)
+					// Constants for buffer wait protection (see tech-spec-fix-emergency-timeout-override-buffer-message.md)
+					const BUFFER_WAIT_INTERVAL_MS = 100; // Each iteration sleeps for 100ms
+					const MIN_ABSOLUTE_WAIT_MS = 10000; // Minimum 10 seconds absolute wait
+					const MIN_WAIT_ITERATIONS = 50; // Minimum iterations to prevent premature exit
+					const SAFETY_BUFFER_MS = 2000; // Safety buffer on top of bufferTime
+					const ABSOLUTE_SAFETY_BUFFER_MS = 3000; // Safety buffer for absolute max wait
+
 					let resume = false;
 					let waitIterations = 0;
 					const startTime = Date.now();
-					const maxWaitTime = Date.now() + (bufferTime * 1000) + 2000; // 2s safety buffer
-					const ABSOLUTE_MAX_WAIT = Math.max(10000, bufferTime * 1000 + 3000); // Dynamic absolute max
-					const MAX_WAIT_ITERATIONS = Math.max(50, bufferTime * 10); // Allow proper timing: 5s = 50 iterations x 100ms
-					
+					const maxWaitTime = Date.now() + (bufferTime * 1000) + SAFETY_BUFFER_MS;
+					// Dynamic absolute max: at least 10s, or bufferTime + 3s safety buffer
+					const ABSOLUTE_MAX_WAIT = Math.max(MIN_ABSOLUTE_WAIT_MS, bufferTime * 1000 + ABSOLUTE_SAFETY_BUFFER_MS);
+					// Iterations based on bufferTime: 10 iterations per second (100ms each), minimum 50
+					const MAX_WAIT_ITERATIONS = Math.max(MIN_WAIT_ITERATIONS, bufferTime * (1000 / BUFFER_WAIT_INTERVAL_MS));
+
 
 					while (!resume) {
-						// EMERGENCY EXIT - Force exit after 8 seconds no matter what
-						const emergencyTime = Date.now() - startTime;
-						if (emergencyTime > 8000) {
-							resume = true;
-							break;
-						}
-						
-						// Circuit breaker protection
+						// Circuit breaker protection - prevents infinite loops (iterations-based safety)
 						if (waitIterations++ > MAX_WAIT_ITERATIONS) {
 							resume = true;
 							break;
